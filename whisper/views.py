@@ -18,59 +18,34 @@ from .models import Whisper
 def home(request):
     whiperInfo = Whisper.objects.all().order_by('-id')
     if request.method == 'GET':
-     #   myFilter = ExpFilter(request.GET, queryset=expInfo)
-      #  expInfo = myFilter.qs
-       # return render(request, 'home.html', {'expInfo': expInfo, 'myFilter': myFilter, })
         return render(request, 'home.html', {'whisperInfo':whiperInfo,})
     else:
         return render(request, 'home.html', {})
-        #return render(request, 'home.html', {'expInfo': expInfo, })
-
 
 def whisper(request):
-        command = ['qsub test.sge']
-        root_directory = os.path.join('/mnt/d/work')
-        files = []
-        folders = []
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            print(root_directory)
-            if os.path.exists(root_directory):
-                if( root_directory[ len(root_directory) - 1 ] ==  '/' ):
-                    folders = root_directory
-                else:
-                    folders = root_directory+'/'
-                dir1 = dir(root_directory)
-                for f in os.walk(root_directory):
-                    files.append(f)
-            if( len(files) > 2):  #First 2 entries are . and ..  -skip them
-                print(files)
-                files.sort()
-                print(files)
-                context = '<ul class="filetree" style="display: none;">'
-
-                for dirpath, dirs, f in os.walk(root_directory):
-                    print(dirpath)
-                    print (dirs)
-                    print(f)
-                    context += '<li class="folder collapsed"><a href="#" rel="'+ str(dirpath)+'/">' + str(dirs) + '</a></li>'
-                    for file in f:
-                        ext = re.sub('/^.*\\./', '', file)
-                        context += '<li class="file ext_'+ext+'"><a href="#" rel="' +dirpath+'">'+file+'</a></li>'
-                context += '</ul>'
-            return JsonResponse({'context':context})
-
-        if request.method == 'POST':
-                filled_form = WhisperForm(request.POST)
-                if filled_form.is_valid():
-                        obj = filled_form.save(commit=False)
-                        obj.submitter = request.user
-                        created_whisper = filled_form.save()
-                        messages.success(request, 'Success!')
-                else:
-                        messages.error(request, 'Failed!')
-                new_form = WhisperForm()
-                info = Whisper.objects.all()
-                return render(request, 'home.html', {})
+    if request.method == 'POST':
+        filled_form = WhisperForm(request.POST, request.FILES)
+        if filled_form.is_valid():
+            obj = filled_form.save(commit=False)
+            obj.submitter = request.user
+            filled_form.input_file_path = os.path.join(settings.MEDIA_ROOT, str(filled_form.cleaned_data['input_file_path']))
+            obj.input_file_path = filled_form.input_file_path
+            print("File path: ",filled_form.input_file_path)
+            filled_form.save()
+            jobRun(obj.id)
+            messages.success(request, 'Success!')
         else:
-                form = WhisperForm()
-                return render(request, 'whisper.html', {'addform':form, })
+            print(filled_form.errors)
+            messages.error(request, 'Failed!')
+        new_form = WhisperForm()
+        whiperInfo = Whisper.objects.all().order_by('-id')
+        return render(request, 'home.html', {'whisperInfo': whiperInfo, })
+    else:
+        form = WhisperForm()
+        return render(request, 'whisper.html', {'addform': form, })
+
+
+def jobRun(id):
+    cmd = Whisper.objects.get(pk=id)
+    command_submit = cmd.name + " " + cmd.model + " " + cmd.output_format + " " + cmd.task + " " + cmd.language + " " + cmd.input_file_path
+    print("Command to be submitted: ",command_submit)

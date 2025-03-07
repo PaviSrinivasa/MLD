@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os
+from .secret_settings import *
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -71,41 +72,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'multimodal.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'multimodal',
-        'USER': 'mldadmin',
-        'PASSWORD': 'mld*admin',  # enter db password here
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-    }
-}
-
-
-# Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
-
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
-
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
@@ -123,6 +89,51 @@ USE_TZ = True
 
 STATIC_URL = '/multimodal/whisper/static/'
 MEDIA_URL = '/media/'
+
+#Logging
+LOG_PATH = '/var/log'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': "[%(asctime)s] %(levelname)s [%(filename)s:%(lineno)s] %(message)s",
+            'datefmt': "%Y/%b/%d %H:%M:%S"
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        'django': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(str(LOG_PATH), 'django.log'),
+            'maxBytes': (1024 * 1024 * 10),
+            'backupCount': 10,
+            'formatter': 'verbose',
+        },
+        'user': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(str(LOG_PATH), 'user.log'),
+            'maxBytes': 1024 * 1024 * 10,
+            'backupCount': 10,
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['django'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+        },
+        'user': {
+            'handlers': ['user'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+        },
+    },
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
