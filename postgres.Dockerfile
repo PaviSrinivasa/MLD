@@ -1,0 +1,5 @@
+FROM postgres:17
+
+ENV POSTGRES_USER mldadmin
+ENV POSTGRES_PASSWORD password
+ENV POSTGRES_DB multimodal
