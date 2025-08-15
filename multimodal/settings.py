@@ -144,7 +144,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_ROOT = Path('')
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-FILE_RUN_FOLDER = '/data/mld/mld-procgroup/working_data'
+FILE_RUN_FOLDER = '/data/workspaces/mld/workspaces/mld-procgroup/working_data/'
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'

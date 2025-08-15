@@ -32,8 +32,8 @@ def whisper(request):
             obj = filled_form.save(commit=False)
             obj.submitter = request.user
             filled_form.input_file_path = os.path.join(settings.MEDIA_ROOT, str(filled_form.cleaned_data['input_file_path']))
-            obj.input_file_path = os.path.join(settings.FILE_RUN_FOLDER, filled_form.input_file_path)
-            print("File path: ",os.path.join(settings.FILE_RUN_FOLDER, filled_form.input_file_path))
+            obj.input_file_path = filled_form.input_file_path
+            print("File path: ",filled_form.input_file_path)
             filled_form.save()
             jobRun(obj.id)
             messages.success(request, 'Success!')
@@ -63,6 +63,7 @@ def jobRun(id):
              "module load ffmpeg \n",
              "module load miniconda/3.2021.10 \n",
              "conda activate whisper \n",
+             "cd /data/workspaces/mld/workspaces/mld-procgroup/working_data/ \n",
              command_submit,
              "\n"
              ]
