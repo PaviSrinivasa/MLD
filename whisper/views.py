@@ -54,7 +54,7 @@ def jobRun(id):
     print("Command to be submitted: ",command_submit)
     lines = ["#!/bin/bash \n",
              "#$ -N whisper \n",
-             "#$ -cwd \n",
+             "#$ -cwd /data/workspaces/mld/workspaces/mld-procgroup/working_data/ \n",
              "#$ -q cuda.q \n",
              "#$ -S /bin/bash \n",
              "#$ -M mldproc \n",
