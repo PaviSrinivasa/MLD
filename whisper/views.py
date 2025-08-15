@@ -50,7 +50,7 @@ def whisper(request):
 
 def jobRun(id):
     cmd = Whisper.objects.get(pk=id)
-    command_submit = cmd.name + " " + cmd.model + " " + cmd.output_format + " " + cmd.task + " " + cmd.language + " " + cmd.input_file_path
+    command_submit = cmd.name + " --model " + cmd.model + " --output_format " + cmd.output_format + " --" + cmd.task + " --language " + cmd.language + " " + cmd.input_file_path
     print("Command to be submitted: ",command_submit)
     lines = ["#!/bin/bash \n",
              "#$ -N whisper \n",
@@ -63,7 +63,8 @@ def jobRun(id):
              "module load ffmpeg \n",
              "module load miniconda/3.2021.10 \n",
              "conda activate whisper \n",
-             command_submit
+             command_submit,
+             "\n"
              ]
     print(lines)
     time_now = datetime.now().strftime('%m%d%Y_%H%M%S')
@@ -82,4 +83,5 @@ def jobRun(id):
         print("File already exists")
     finally:
         print("File created successfully")
-        #os.system("qsub " + filename)
+        os.system("qsub " + filename)
+        print("qsub submitted successfully")
