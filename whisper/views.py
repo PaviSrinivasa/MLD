@@ -83,5 +83,5 @@ def jobRun(id):
         print("File already exists")
     finally:
         print("File created successfully")
-        os.system("qsub " + filename)
+        os.system("qsub " + filepath)
         print("qsub submitted successfully")
